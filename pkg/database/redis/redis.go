@@ -35,8 +35,14 @@ func (r *Redis) Get(ctx context.Context, key string) (*string, error) {
 	return &val, nil
 }
 
-func (r *Redis) Set(ctx context.Context, key string, val interface{}, ttl time.Duration) error {
-	result := r.redis.Get(ctx, r.key(key))
+func (r *Redis) Set(ctx context.Context, key string, val string, ttl *time.Duration) error {
+	var duration time.Duration = -1
+
+	if ttl != nil {
+		duration = *ttl
+	}
+
+	result := r.redis.Set(ctx, r.key(key), val, duration)
 
 	if result.Err() != nil {
 		if result.Err() == goRedis.Nil {

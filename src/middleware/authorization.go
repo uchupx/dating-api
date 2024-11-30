@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"context"
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -15,10 +17,15 @@ func (m *Middleware) Authorization(next echo.HandlerFunc) echo.HandlerFunc {
 
 		auth = reg.ReplaceAllString(auth, "")
 		if strings.TrimSpace(auth) != "" {
-			val, err := m.Redis.Get(c.Request().Context(), helper.REDIS_KEY_AUTH)
+			val, err := m.Redis.Get(c.Request().Context(), fmt.Sprintf("%s:%s", helper.REDIS_KEY_AUTH, auth))
 			if err != nil || val == nil {
 				return echo.NewHTTPError(401, "Unauthorized")
 			}
+
+			ctx := c.Request().Context()
+			ctx = context.WithValue(ctx, "userData", val)
+
+			c.SetRequest(c.Request().WithContext(ctx))
 
 			next(c)
 		} else {

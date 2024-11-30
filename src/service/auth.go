@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
-	"strings"
 	"time"
 
 	"github.com/uchupx/dating-api/pkg/database/redis"
 	"github.com/uchupx/dating-api/pkg/helper"
 	"github.com/uchupx/dating-api/pkg/jwt"
+	"github.com/uchupx/dating-api/src/dto"
+	"github.com/uchupx/dating-api/src/repo"
+
 	"github.com/uchupx/kajian-api/pkg/errors"
 )
 
@@ -29,19 +31,19 @@ func (AuthService) name() string {
 func (s *AuthService) Login(ctx context.Context, req dto.AuthRequest) (*dto.Response, error) {
 	var user dto.User
 	if req.Username == nil || req.Password == nil {
-		return nil, fmt.Errorf("%s - Login] username or password is required", s.name)
+		return nil, fmt.Errorf("%s - Login] username or password is required", s.name())
 	}
 
 	client, err := s.ClientRepo.FindAppsByKey(ctx, req.ClientId)
 	if err != nil {
-		return nil, fmt.Errorf("%s - Login] error when find client app: %w", s.name, err)
+		return nil, fmt.Errorf("%s - Login] error when find client app: %w", s.name(), err)
 	} else if client == nil {
 		return nil, errors.ErrNotFound
 	}
 
 	isClientValid, err := s.JWT.Verify(req.ClientSecret, client.Secret.String)
 	if err != nil {
-		return nil, fmt.Errorf("%s - Login] error when verify client secret: %w", s.name, err)
+		return nil, fmt.Errorf("%s - Login] error when verify client secret: %w", s.name(), err)
 	}
 
 	if !isClientValid {
@@ -50,14 +52,14 @@ func (s *AuthService) Login(ctx context.Context, req dto.AuthRequest) (*dto.Resp
 
 	model, err := s.UserRepo.FindUserByUsernameEmail(ctx, *req.Username)
 	if err != nil {
-		return nil, fmt.Errorf("%s - Login] error when find user by username: %w", s.name, err)
+		return nil, fmt.Errorf("%s - Login] error when find user by username: %w", s.name(), err)
 	} else if model == nil {
 		return nil, errors.ErrNotFound
 	}
 
 	isValid, err := s.JWT.Verify(*req.Password, model.Password.String)
 	if err != nil {
-		return nil, fmt.Errorf("%s - Login] error when verify value: %w", s.name, err)
+		return nil, fmt.Errorf("%s - Login] error when verify value: %w", s.name(), err)
 	}
 
 	if !isValid {
@@ -68,26 +70,26 @@ func (s *AuthService) Login(ctx context.Context, req dto.AuthRequest) (*dto.Resp
 
 	token, err := s.JWT.CreateAccessToken(1*time.Hour, user)
 	if err != nil {
-		return nil, fmt.Errorf("%s - Login] error when create access token: %w", s.name, err)
+		return nil, fmt.Errorf("%s - Login] error when create access token: %w", s.name(), err)
 	}
 
 	duration := 1 * time.Hour
 
-	if err := s.Redis.Set(ctx, fmt.Sprintf(enums.RedisKeyAuthorizationToken, *token), pkg.JsonStringify(user), duration).Err(); err != nil {
-		return nil, fmt.Errorf("%s - Login] error when set redis: %w", s.name, err)
+	if err := s.Redis.Set(ctx, fmt.Sprintf("%s:%s", helper.REDIS_KEY_AUTH, *token), helper.JsonStringify(user), &duration); err != nil {
+		return nil, fmt.Errorf("%s - Login] error when set redis: %w", s.name(), err)
 	}
 
 	// refresh token
 
 	refreshToken, err := s.JWT.CreateAccessToken(24*time.Hour, user)
 	if err != nil {
-		return nil, fmt.Errorf("%s - Login] error when create refresh token: %w", s.name, err)
+		return nil, fmt.Errorf("%s - Login] error when create refresh token: %w", s.name(), err)
 	}
 
 	exp := time.Now().Add(24 * time.Hour)
 
 	if _, err := s.RefreshTokenRepo.Insert(ctx, user.ID, user.ClientAppId, *token, exp); err != nil {
-		return nil, fmt.Errorf("%s - Login] error when insert refresh token: %w", s.name, err)
+		return nil, fmt.Errorf("%s - Login] error when insert refresh token: %w", s.name(), err)
 	}
 
 	return &dto.Response{
@@ -103,14 +105,14 @@ func (s *AuthService) Login(ctx context.Context, req dto.AuthRequest) (*dto.Resp
 func (s *AuthService) SignUp(ctx context.Context, req dto.SignUpRequest) (*dto.Response, error) {
 	client, err := s.ClientRepo.FindAppsByKey(ctx, req.ClientKey)
 	if err != nil {
-		return nil, fmt.Errorf("%s - SignUp] error when find client app: %w", s.name, err)
+		return nil, fmt.Errorf("%s - SignUp] error when find client app: %w", s.name(), err)
 	} else if client == nil {
 		return nil, errors.ErrNotFound
 	}
 
 	signPassword, err := s.JWT.CreateSignPSS(req.Password)
 	if err != nil {
-		return nil, fmt.Errorf("%s - SignUp] error when create signature password: %w", s.name, err)
+		return nil, fmt.Errorf("%s - SignUp] error when create signature password: %w", s.name(), err)
 	}
 
 	now := time.Now()
@@ -125,7 +127,7 @@ func (s *AuthService) SignUp(ctx context.Context, req dto.SignUpRequest) (*dto.R
 
 	id, err := s.UserRepo.Insert(ctx, newUser.ToModel())
 	if err != nil {
-		return nil, fmt.Errorf("%s - SignUp] error when creating user: %w", s.name, err)
+		return nil, fmt.Errorf("%s - SignUp] error when creating user: %w", s.name(), err)
 	}
 
 	newUser.ID = *id
@@ -142,18 +144,18 @@ func (s *AuthService) SignUp(ctx context.Context, req dto.SignUpRequest) (*dto.R
 func (s *AuthService) RetrieveUser(ctx context.Context, token string) (*dto.User, error) {
 	resToken, err := s.JWT.VerifyJWTToken(token)
 	if err != nil {
-		return nil, fmt.Errorf("%s - RetrieveUser] error when verify token: %w", s.name, err)
+		return nil, fmt.Errorf("%s - RetrieveUser] error when verify token: %w", s.name(), err)
 	}
 
 	bytes, err := json.Marshal(resToken)
 	if err != nil {
-		return nil, fmt.Errorf("%s - RetrieveUser] error when marshal token: %w", s.name, err)
+		return nil, fmt.Errorf("%s - RetrieveUser] error when marshal token: %w", s.name(), err)
 	}
 
 	var user dto.User
 
 	if err := json.Unmarshal(bytes, &user); err != nil {
-		return nil, fmt.Errorf("%s - RetrieveUser] error when unmarshal token: %w", s.name, err)
+		return nil, fmt.Errorf("%s - RetrieveUser] error when unmarshal token: %w", s.name(), err)
 	}
 
 	return &user, nil
@@ -164,7 +166,7 @@ func (s *AuthService) AddClient(ctx context.Context, req dto.ClientPost) (*dto.R
 	secret := RandomString(20)
 	clientSecret, err := s.JWT.CreateSignPSS(secret)
 	if err != nil {
-		return nil, fmt.Errorf("%s - AddClient] error when create signature password: %w", s.name, err)
+		return nil, fmt.Errorf("%s - AddClient] error when create signature password: %w", s.name(), err)
 	}
 
 	data := dto.Client{
@@ -175,7 +177,7 @@ func (s *AuthService) AddClient(ctx context.Context, req dto.ClientPost) (*dto.R
 
 	id, err := s.ClientRepo.Insert(ctx, data.ToModel())
 	if err != nil {
-		return nil, fmt.Errorf("%s - AddClient] error when insert client: %w", s.name, err)
+		return nil, fmt.Errorf("%s - AddClient] error when insert client: %w", s.name(), err)
 	}
 
 	return &dto.Response{
@@ -185,6 +187,7 @@ func (s *AuthService) AddClient(ctx context.Context, req dto.ClientPost) (*dto.R
 			Entity: "client_apps",
 			Meta: map[string]interface{}{
 				"secret": secret,
+				"key":    data.Key,
 			},
 		},
 	}, nil
@@ -193,14 +196,14 @@ func (s *AuthService) AddClient(ctx context.Context, req dto.ClientPost) (*dto.R
 func (s *AuthService) RefreshToken(ctx context.Context, req dto.RefreshTokenRequest) (*dto.Response, error) {
 	client, err := s.ClientRepo.FindAppsByKey(ctx, req.ClientId)
 	if err != nil {
-		return nil, fmt.Errorf("%s - RefreshToken] error when find client app: %w", s.name, err)
+		return nil, fmt.Errorf("%s - RefreshToken] error when find client app: %w", s.name(), err)
 	} else if client == nil {
 		return nil, errors.ErrNotFound
 	}
 
 	isClientValid, err := s.JWT.Verify(req.ClientSecret, client.Secret.String)
 	if err != nil {
-		return nil, fmt.Errorf("%s - RefreshToken] error when verify client secret: %w", s.name, err)
+		return nil, fmt.Errorf("%s - RefreshToken] error when verify client secret: %w", s.name(), err)
 	}
 	if !isClientValid {
 		return nil, errors.ErrUnauthorized
@@ -208,17 +211,17 @@ func (s *AuthService) RefreshToken(ctx context.Context, req dto.RefreshTokenRequ
 
 	user, err := s.RetrieveUser(ctx, req.RefreshToken)
 	if err != nil {
-		return nil, fmt.Errorf("%s - RefreshToken] error when retrieve user: %w", s.name, err)
+		return nil, fmt.Errorf("%s - RefreshToken] error when retrieve user: %w", s.name(), err)
 	}
 
 	token, err := s.JWT.CreateAccessToken(1*time.Hour, *user)
 	if err != nil {
-		return nil, fmt.Errorf("%s - RefreshToken] error when create access token: %w", s.name, err)
+		return nil, fmt.Errorf("%s - RefreshToken] error when create access token: %w", s.name(), err)
 	}
 
 	duration := 1 * time.Hour
-	if err := s.Redis.Set(ctx, fmt.Sprintf(helper.REDIS_KEY_AUTH, strings.Split(*token, ".")[2]), pkg.JsonStringify(user), duration).Err(); err != nil {
-		return nil, fmt.Errorf("%s - RefreshToken] error when set redis: %w", s.name, err)
+	if err := s.Redis.Set(ctx, fmt.Sprintf("%s:%s", helper.REDIS_KEY_AUTH, *token), helper.JsonStringify(user), &duration); err != nil {
+		return nil, fmt.Errorf("%s - RefreshToken] error when set redis: %w", s.name(), err)
 	}
 
 	return &dto.Response{
