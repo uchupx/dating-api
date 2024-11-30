@@ -75,7 +75,7 @@ func (s *AuthService) Login(ctx context.Context, req dto.AuthRequest) (*dto.Resp
 
 	duration := 1 * time.Hour
 
-	if err := s.Redis.Set(ctx, fmt.Sprintf("%s:%s", helper.REDIS_KEY_AUTH, *token), helper.JsonStringify(user), &duration); err != nil {
+	if err := s.Redis.Set(ctx, fmt.Sprintf("%s:%s", helper.REDIS_KEY_AUTH, *token), user.ID, &duration); err != nil {
 		return nil, fmt.Errorf("%s - Login] error when set redis: %w", s.name(), err)
 	}
 
@@ -220,7 +220,7 @@ func (s *AuthService) RefreshToken(ctx context.Context, req dto.RefreshTokenRequ
 	}
 
 	duration := 1 * time.Hour
-	if err := s.Redis.Set(ctx, fmt.Sprintf("%s:%s", helper.REDIS_KEY_AUTH, *token), helper.JsonStringify(user), &duration); err != nil {
+	if err := s.Redis.Set(ctx, fmt.Sprintf("%s:%s", helper.REDIS_KEY_AUTH, *token), user.ID, &duration); err != nil {
 		return nil, fmt.Errorf("%s - RefreshToken] error when set redis: %w", s.name(), err)
 	}
 

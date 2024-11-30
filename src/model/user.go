@@ -13,6 +13,7 @@ type User struct {
 	Phone       sql.NullString `db:"phone"`
 	Password    sql.NullString `db:"password"`
 	Email       sql.NullString `db:"email"`
+	DOB         sql.NullTime   `db:"dob"`
 	CreatedAt   sql.NullTime   `db:"created_at"`
 	UpdatedAt   sql.NullTime   `db:"updated_at"`
 }

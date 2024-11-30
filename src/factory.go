@@ -7,11 +7,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/uchupx/dating-api/config"
 	"github.com/uchupx/dating-api/pkg/database/redis"
-	"github.com/uchupx/dating-api/pkg/jwt"
 	"github.com/uchupx/dating-api/src/handler"
 	"github.com/uchupx/dating-api/src/middleware"
-	"github.com/uchupx/dating-api/src/repo"
-	"github.com/uchupx/dating-api/src/service"
 
 	"github.com/uchupx/kajian-api/pkg/db"
 	"github.com/uchupx/kajian-api/pkg/logger"
@@ -23,22 +20,12 @@ type Dating struct {
 	db          *db.DB
 	redisClient *redis.Redis
 
-	// repo
-	userRepo         *repo.UserRepo
-	clientRepo       *repo.ClientRepo
-	refreshTokenRepo *repo.RefreshTokenRepo
+	datingRepo    //----repo
+	datingHandler //----handler
+	datingService //----service
 
 	//middleware
 	apiMiddleware *middleware.Middleware
-
-	// handler
-	authHandler *handler.AuthHandler
-	userHandler *handler.UserHandler
-
-	// service
-	userService *service.UserService
-	authService *service.AuthService
-	jwtService  jwt.CryptService
 }
 
 func (i *Dating) DB(conf *config.Config) *db.DB {
@@ -95,30 +82,6 @@ func (i *Dating) RedisClient(conf *config.Config) *redis.Redis {
 	}
 
 	return i.redisClient
-}
-
-func (i *Dating) UserRepo(conf *config.Config) *repo.UserRepo {
-	if i.userRepo == nil {
-		i.userRepo = repo.NewUserRepo(i.DB(conf))
-	}
-
-	return i.userRepo
-}
-
-func (i *Dating) ClientRepo(conf *config.Config) *repo.ClientRepo {
-	if i.clientRepo == nil {
-		i.clientRepo = repo.NewClientRepo(i.DB(conf))
-	}
-
-	return i.clientRepo
-}
-
-func (i *Dating) RefreshTokenRepo(conf *config.Config) *repo.RefreshTokenRepo {
-	if i.refreshTokenRepo == nil {
-		i.refreshTokenRepo = repo.NewRefreshTokenRepo(i.DB(conf))
-	}
-
-	return i.refreshTokenRepo
 }
 
 func (i *Dating) middleware(conf *config.Config) *middleware.Middleware {

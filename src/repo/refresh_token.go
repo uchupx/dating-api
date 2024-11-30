@@ -12,7 +12,7 @@ import (
 
 const (
 	findRefreshTokenQuery = "SELECT id, user_id, client_app_id, expired_at FROM refresh_tokens WHERE token = ?"
-	insertRefreshToken    = "INSERT INTO refresh_tokens(id, user_id, client_app_id, refersh_token, expired_at) VALUES (?, ?, ?, ?, ?)"
+	insertRefreshToken    = "INSERT INTO refresh_tokens(id, user_id, client_app_id, token, expired_at) VALUES (?, ?, ?, ?, ?)"
 )
 
 type RefreshTokenRepo struct {

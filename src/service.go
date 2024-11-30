@@ -6,6 +6,12 @@ import (
 	"github.com/uchupx/dating-api/src/service"
 )
 
+type datingService struct {
+	authService *service.AuthService
+	userService *service.UserService
+	jwtService  jwt.CryptService
+}
+
 func (i *Dating) AuthService(conf *config.Config) *service.AuthService {
 	if i.authService == nil {
 		i.authService = &service.AuthService{
@@ -23,7 +29,8 @@ func (i *Dating) AuthService(conf *config.Config) *service.AuthService {
 func (i *Dating) UserService(conf *config.Config) *service.UserService {
 	if i.userService == nil {
 		i.userService = &service.UserService{
-			UserRepo: i.UserRepo(conf),
+			UserRepo:     i.UserRepo(conf),
+			ReactionRepo: i.ReactionRepo(conf),
 		}
 	}
 
