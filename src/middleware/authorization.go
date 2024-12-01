@@ -23,7 +23,7 @@ func (m *Middleware) Authorization(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 
 			ctx := c.Request().Context()
-			ctx = context.WithValue(ctx, "userData", val)
+			ctx = context.WithValue(ctx, "userData", *val)
 
 			c.SetRequest(c.Request().WithContext(ctx))
 

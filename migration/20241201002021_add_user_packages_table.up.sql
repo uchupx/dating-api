@@ -6,3 +6,4 @@ CREATE TABLE user_packages (
   valid_until DATE NULL,
   created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+

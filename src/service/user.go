@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/uchupx/dating-api/pkg/database/redis"
+	"github.com/uchupx/dating-api/pkg/errors"
 	"github.com/uchupx/dating-api/pkg/helper"
 	"github.com/uchupx/dating-api/src/dto"
 	"github.com/uchupx/dating-api/src/repo"
-	"github.com/uchupx/kajian-api/pkg/errors"
 )
 
 type UserService struct {
@@ -24,12 +24,12 @@ func (UserService) name() string {
 	return "UserService"
 }
 
-func (s *UserService) findByID(ctx context.Context, id string) (*dto.User, error) {
+func (s *UserService) findByID(ctx context.Context, id string) (*dto.User, *errors.ErrorMeta) {
 	model, err := s.UserRepo.FindUserByID(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("%s - findUserByID] error when find user by id: %w", s.name(), err)
+		return nil, serviceError(500, fmt.Errorf("%s - findUserByID] error when find user by id: %w", s.name(), err))
 	} else if model == nil {
-		return nil, errors.ErrNotFound
+		return nil, serviceError(404, fmt.Errorf("%s - findUserByID] user not found", s.name()))
 	}
 
 	var user dto.User
@@ -38,10 +38,10 @@ func (s *UserService) findByID(ctx context.Context, id string) (*dto.User, error
 	return &user, nil
 }
 
-func (s *UserService) FindUserByID(ctx context.Context, id string) (*dto.Response, error) {
+func (s *UserService) FindUserByID(ctx context.Context, id string) (*dto.Response, *errors.ErrorMeta) {
 	user, err := s.findByID(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("%s - FindUserByID] error when find user by id: %w", s.name(), err)
+		return nil, err
 	}
 
 	return &dto.Response{
@@ -50,20 +50,24 @@ func (s *UserService) FindUserByID(ctx context.Context, id string) (*dto.Respons
 	}, nil
 }
 
-func (s *UserService) FindRandomUser(ctx context.Context) (*dto.Response, error) {
+func (s *UserService) FindRandomUser(ctx context.Context) (*dto.Response, *errors.ErrorMeta) {
 	count := 0
 	now := time.Now()
 	start := now.AddDate(0, 0, -1)
-	userId := ctx.Value("userData").(*string)
+	userId := ctx.Value("userData").(string)
 
-	me, err := s.findByID(ctx, *userId)
+	me, err := s.findByID(ctx, userId)
 	if err != nil {
-		return nil, fmt.Errorf("%s - FindRandomUser] error when find user by id: %w", s.name(), err)
+		return nil, serviceError(500, fmt.Errorf("%s - FindRandomUser] error when find user by id: %w", s.name(), err))
 	}
 
-	val, err := s.Redis.Get(ctx, fmt.Sprintf(helper.REDIS_KEY_USER_VIEW, *userId))
-	if err != nil {
-		return nil, fmt.Errorf("%s - FindRandomUser] error when get count random user: %w", s.name(), err)
+	if me == nil {
+		return nil, serviceError(404, fmt.Errorf("%s - FindRandomUser] user not found", s.name()))
+	}
+
+	val, er := s.Redis.Get(ctx, fmt.Sprintf(helper.REDIS_KEY_USER_VIEW, userId))
+	if er != nil {
+		return nil, serviceError(500, fmt.Errorf("%s - FindRandomUser] error when get count random user: %w", s.name(), er))
 	}
 
 	if val != nil {
@@ -77,9 +81,9 @@ func (s *UserService) FindRandomUser(ctx context.Context) (*dto.Response, error)
 		}, nil
 	}
 
-	model, err := s.UserRepo.FindUserRandom(ctx, *userId, start, now)
-	if err != nil {
-		return nil, fmt.Errorf("%s - FindRandomUser] error when find random user: %w", s.name(), err)
+	model, er := s.UserRepo.FindUserRandom(ctx, userId, start, now)
+	if er != nil {
+		return nil, serviceError(500, fmt.Errorf("%s - FindRandomUser] error when find random user: %w", s.name(), er))
 	}
 
 	var user dto.User
@@ -88,8 +92,8 @@ func (s *UserService) FindRandomUser(ctx context.Context) (*dto.Response, error)
 	count += 1
 	duration := redis.GetEndOfDayDuration()
 
-	if err := s.Redis.Set(ctx, fmt.Sprintf(helper.REDIS_KEY_USER_VIEW, *userId), helper.IntToString(count), &duration); err != nil {
-		return nil, fmt.Errorf("%s - FindRandomUser] error when set count random user: %w", s.name(), err)
+	if err := s.Redis.Set(ctx, fmt.Sprintf(helper.REDIS_KEY_USER_VIEW, userId), helper.IntToString(count), &duration); err != nil {
+		return nil, serviceError(500, fmt.Errorf("%s - FindRandomUser] error when set count random user: %w", s.name(), err))
 	}
 
 	return &dto.Response{
@@ -98,25 +102,25 @@ func (s *UserService) FindRandomUser(ctx context.Context) (*dto.Response, error)
 	}, nil
 }
 
-func (s *UserService) Reaction(ctx context.Context, req dto.ReactionRequest) (*dto.Response, error) {
-	userId := ctx.Value("userData").(*string)
+func (s *UserService) Reaction(ctx context.Context, req dto.ReactionRequest) (*dto.Response, *errors.ErrorMeta) {
+	userId := ctx.Value("userData").(string)
 
 	if !helper.ValidateReaction(req.Reaction) {
-		return nil, fmt.Errorf("%s - Reaction] error when validate reaction", s.name())
+		return nil, serviceError(400, fmt.Errorf("%s - Reaction] error when validate reaction", s.name()))
 	}
 
-	isExist, err := s.ReactionRepo.FindByUserIdTargetIdPair(ctx, *userId, req.TargetUserID)
+	isExist, err := s.ReactionRepo.FindByUserIdTargetIdPair(ctx, userId, req.TargetUserID)
 	if err != nil {
-		return nil, fmt.Errorf("%s - Reaction] error when find reaction by user id and target user id: %w", s.name(), err)
+		return nil, serviceError(500, fmt.Errorf("%s - Reaction] error when find reaction by user id and target user id: %w", s.name(), err))
 	}
 
 	if isExist != nil {
 		if err = s.ReactionRepo.Update(ctx, req.Reaction, isExist.ID.String); err != nil {
-			return nil, fmt.Errorf("%s - Reaction] error when update reaction: %w", s.name(), err)
+			return nil, serviceError(500, fmt.Errorf("%s - Reaction] error when update reaction: %w", s.name(), err))
 		}
 	} else {
-		if _, err := s.ReactionRepo.Insert(ctx, *userId, req.TargetUserID, req.Reaction); err != nil {
-			return nil, fmt.Errorf("%s - Reaction] error when insert reaction: %w", s.name(), err)
+		if _, err := s.ReactionRepo.Insert(ctx, userId, req.TargetUserID, req.Reaction); err != nil {
+			return nil, serviceError(500, fmt.Errorf("%s - Reaction] error when insert reaction: %w", s.name(), err))
 		}
 	}
 

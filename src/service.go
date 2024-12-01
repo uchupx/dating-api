@@ -7,9 +7,10 @@ import (
 )
 
 type datingService struct {
-	authService *service.AuthService
-	userService *service.UserService
-	jwtService  jwt.CryptService
+	authService    *service.AuthService
+	userService    *service.UserService
+	packageService *service.PackageService
+	jwtService     jwt.CryptService
 }
 
 func (i *Dating) AuthService(conf *config.Config) *service.AuthService {
@@ -49,4 +50,15 @@ func (i *Dating) JWTService(conf *config.Config) jwt.CryptService {
 	}
 
 	return i.jwtService
+}
+
+func (i *Dating) PackageService(conf *config.Config) *service.PackageService {
+	if i.packageService == nil {
+		i.packageService = &service.PackageService{
+			DB:          i.DB(conf),
+			PackageRepo: i.PackageRepo(conf),
+		}
+	}
+
+	return i.packageService
 }

@@ -10,6 +10,10 @@ const (
 	REACTION_LIKE    int8 = 1
 	REACTION_DISLIKE int8 = 2
 
+	// Generate enum string
+	ACTIVE_INT   int8 = 1
+	INACTIVE_INT int8 = 0
+
 	// enum Feature
 	FEATURE_VERIFIED       int8 = 1
 	FEATURE_NO_SWIPE_QUOTA int8 = 2

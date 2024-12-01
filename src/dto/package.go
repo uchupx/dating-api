@@ -1,9 +1,11 @@
 package dto
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/uchupx/dating-api/pkg/helper"
 	"github.com/uchupx/dating-api/src/model"
 )
 
@@ -31,7 +33,12 @@ func (u *Package) Model(p *model.Package) {
 	}
 
 	if p.Features.Valid {
-		u.Features = strings.Split(p.Features.String, ",")
+		f := strings.Split(p.Features.String, ",")
+		for _, v := range f {
+			i, _ := strconv.Atoi(v)
+
+			u.Features = append(u.Features, helper.FEATURE_MAP[int8(i)])
+		}
 	}
 
 	if p.UpdatedAt.Valid {

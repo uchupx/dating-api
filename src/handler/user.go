@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/uchupx/dating-api/pkg/errors"
 	"github.com/uchupx/dating-api/src/dto"
 	"github.com/uchupx/dating-api/src/middleware"
 	"github.com/uchupx/dating-api/src/service"
@@ -18,11 +19,11 @@ func (h *UserHandler) InitRoutes(e *echo.Echo, m *middleware.Middleware) {
 }
 
 func (h *UserHandler) Me(c echo.Context) error {
-	userID := c.Request().Context().Value("userData").(*string)
+	userID := c.Request().Context().Value("userData").(string)
 
-	res, err := h.UserService.FindUserByID(c.Request().Context(), *userID)
+	res, err := h.UserService.FindUserByID(c.Request().Context(), userID)
 	if err != nil {
-		return c.JSON(400, err)
+		return responseError(c, err)
 	}
 
 	return c.JSON(200, res)
@@ -39,7 +40,7 @@ func (h *UserHandler) Get(c echo.Context) error {
 func (h *UserHandler) GetRandom(c echo.Context) error {
 	res, err := h.UserService.FindRandomUser(c.Request().Context())
 	if err != nil {
-		return c.JSON(400, err)
+		return responseError(c, err)
 	}
 
 	return c.JSON(200, res)
@@ -48,12 +49,12 @@ func (h *UserHandler) GetRandom(c echo.Context) error {
 func (h *UserHandler) Reaction(c echo.Context) error {
 	var req dto.ReactionRequest
 	if err := c.Bind(&req); err != nil {
-		return err
+		return responseError(c, &errors.ErrorMeta{HTTPCode: 400, Message: "invalid request"})
 	}
 
 	res, err := h.UserService.Reaction(c.Request().Context(), req)
 	if err != nil {
-		return c.JSON(400, err)
+		return responseError(c, err)
 	}
 
 	return c.JSON(200, res)

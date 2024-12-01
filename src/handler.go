@@ -9,8 +9,9 @@ import (
 )
 
 type datingHandler struct {
-	authHandler *handler.AuthHandler
-	userHandler *handler.UserHandler
+	authHandler    *handler.AuthHandler
+	userHandler    *handler.UserHandler
+	packageHandler *handler.PackageHandler
 }
 
 func (i *Dating) AuthHandler(conf *config.Config) *handler.AuthHandler {
@@ -33,11 +34,22 @@ func (i *Dating) UserHandler(conf *config.Config) *handler.UserHandler {
 	return i.userHandler
 }
 
+func (i *Dating) PackageHandler(conf *config.Config) *handler.PackageHandler {
+	if i.packageHandler == nil {
+		i.packageHandler = &handler.PackageHandler{
+			PackageService: i.PackageService(conf),
+		}
+	}
+
+	return i.packageHandler
+}
+
 func (i *Dating) InitRoutes(conf *config.Config, e *echo.Echo) {
 	routes := []handler.BaseHandler{
 		&handler.Handler{},
 		i.AuthHandler(conf),
 		i.UserHandler(conf),
+		i.PackageHandler(conf),
 	}
 
 	i.InitLogger(conf)
