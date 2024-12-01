@@ -144,5 +144,8 @@ func (s *UserService) Update(ctx context.Context, req dto.UserRequest) (*dto.Res
 		return nil, serviceError(500, fmt.Errorf("%s - Update] error when update user: %w", s.name(), err))
 	}
 
-	return &dto.Response{}, nil
+	return &dto.Response{
+		Status:  200,
+		Message: "Success, user has been updated",
+	}, nil
 }

@@ -88,7 +88,7 @@ FROM
   LIMIT 1;
 `
 
-	updateUserQuery = "UPDATE users SET name= ?, gender= ?, address = ?, dob= ?, phone =? WHERRE id = ?"
+	updateUserQuery = "UPDATE users SET name= ?, gender= ?, address = ?, dob= ?, phone =? WHERE id = ?"
 )
 
 type UserRepo struct {
@@ -241,6 +241,7 @@ func (r *UserRepo) Update(ctx context.Context, data model.User) error {
 		data.Address.String,
 		data.DOB.Time,
 		data.Phone.String,
+		data.ID.String,
 	)
 
 	if err != nil {
