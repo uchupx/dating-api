@@ -10,6 +10,7 @@ type datingRepo struct {
 	clientRepo       *repo.ClientRepo
 	refreshTokenRepo *repo.RefreshTokenRepo
 	reactionRepo     *repo.ReactionRepo
+	packageRepo      *repo.PackageRepo
 }
 
 func (i *Dating) UserRepo(conf *config.Config) *repo.UserRepo {
@@ -42,4 +43,12 @@ func (i *Dating) ReactionRepo(conf *config.Config) *repo.ReactionRepo {
 	}
 
 	return i.reactionRepo
+}
+
+func (i *Dating) PackageRepo(conf *config.Config) *repo.PackageRepo {
+	if i.packageRepo == nil {
+		i.packageRepo = repo.NewPackageRepo(i.DB(conf))
+	}
+
+	return i.packageRepo
 }

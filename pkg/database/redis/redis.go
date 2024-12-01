@@ -59,6 +59,14 @@ func (r *Redis) key(suffix string) string {
 	return r.mainKey + ":" + suffix
 }
 
+func GetEndOfDayDuration() time.Duration {
+	now := time.Now()
+	midnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, now.Location())
+	duration := time.Until(midnight)
+
+	return duration
+}
+
 func Connection(c Config) (*Redis, error) {
 	redisClient := goRedis.NewClient(&goRedis.Options{
 		Addr:     c.Host,

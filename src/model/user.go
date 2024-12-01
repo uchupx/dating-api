@@ -16,6 +16,8 @@ type User struct {
 	DOB         sql.NullTime   `db:"dob"`
 	CreatedAt   sql.NullTime   `db:"created_at"`
 	UpdatedAt   sql.NullTime   `db:"updated_at"`
+
+	Features sql.NullString `db:"features"`
 }
 
 func (m *User) TableName() string {

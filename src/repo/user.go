@@ -11,13 +11,66 @@ import (
 )
 
 const (
-	findUserByUsernameEmailQuery = "SELECT id, client_app_id, username,password, email, name, gender, address, dob, phone, created_at, updated_at FROM users WHERE username = ? OR email = ?"
-	findUserByIDQuery            = "SELECT id, client_app_id, username,password, email, name, gender, address, dob, phone, created_at, updated_at FROM users WHERE id = ? "
-	insertUserQuery              = "INSERT INTO users(id, client_app_id, username, password, email, name, gender, address, dob, phone, created_at) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	findUserRandomQuery          = `
-  SELECT
-    id, client_app_id, username,password, email, name, gender, address, dob, phone, created_at, updated_at 
-  FROM users u
+	findUserByUsernameEmailQuery = `
+SELECT
+	u.id,
+	u.client_app_id,
+	u.username,
+	u.password,
+	u.email,
+	u.name,
+	u.gender,
+	u.address,
+	u.dob,
+	u.phone,
+	u.created_at,
+	u.updated_at,
+	group_concat(DISTINCT(up.feature)) as features
+FROM
+	users u
+	left JOIN user_packages up on u.id=up.user_id and up.status = 1
+WHERE
+  u.username = ? OR u.email = ?`
+	findUserByIDQuery = `
+SELECT
+	u.id,
+	u.client_app_id,
+	u.username,
+	u.password,
+	u.email,
+	u.name,
+	u.gender,
+	u.address,
+	u.dob,
+	u.phone,
+	u.created_at,
+	u.updated_at,
+	group_concat(DISTINCT(up.feature)) as features
+FROM
+	users u
+	left JOIN user_packages up on u.id=up.user_id and up.status = 1
+WHERE
+	u.id = ?
+  `
+	insertUserQuery     = "INSERT INTO users(id, client_app_id, username, password, email, name, gender, address, dob, phone, created_at) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	findUserRandomQuery = `
+SELECT
+	u.id,
+	u.client_app_id,
+	u.username,
+	u.password,
+	u.email,
+	u.name,
+	u.gender,
+	u.address,
+	u.dob,
+	u.phone,
+	u.created_at,
+	u.updated_at,
+	group_concat(up.feature) as features
+FROM
+	users u
+	left JOIN user_packages up on u.id=up.user_id and up.status = 1
   WHERE
 	u.id NOT IN (
 		select
@@ -28,6 +81,8 @@ const (
 			user_id = u.id
 			and updated_at BETWEEN ? AND ? 
 	)
+  AND u.id != ?
+  GROUP BY u.id
   ORDER BY
 	  rand()
   LIMIT 1;
@@ -63,6 +118,7 @@ func (r *UserRepo) FindUserByUsernameEmail(ctx context.Context, val string) (*mo
 		&user.Phone,
 		&user.CreatedAt,
 		&user.UpdatedAt,
+		&user.Features,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -72,7 +128,7 @@ func (r *UserRepo) FindUserByUsernameEmail(ctx context.Context, val string) (*mo
 	return &user, nil
 }
 
-func (r *UserRepo) FindUserRandom(ctx context.Context, start, end time.Time) (*model.User, error) {
+func (r *UserRepo) FindUserRandom(ctx context.Context, selfId string, start, end time.Time) (*model.User, error) {
 	var user model.User
 	stmt, err := r.db.FPreparexContext(ctx, findUserRandomQuery)
 	if err != nil {
@@ -81,7 +137,7 @@ func (r *UserRepo) FindUserRandom(ctx context.Context, start, end time.Time) (*m
 
 	defer stmt.Close()
 
-	row := stmt.FQueryRowxContext(ctx, start, end)
+	row := stmt.FQueryRowxContext(ctx, start, end, selfId)
 	err = row.Scan(
 		&user.ID,
 		&user.ClientAppID,
@@ -95,6 +151,7 @@ func (r *UserRepo) FindUserRandom(ctx context.Context, start, end time.Time) (*m
 		&user.Phone,
 		&user.CreatedAt,
 		&user.UpdatedAt,
+		&user.Features,
 	)
 
 	if err == sql.ErrNoRows {
@@ -127,6 +184,7 @@ func (r *UserRepo) FindUserByID(ctx context.Context, id string) (*model.User, er
 		&user.Phone,
 		&user.CreatedAt,
 		&user.UpdatedAt,
+		&user.Features,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil

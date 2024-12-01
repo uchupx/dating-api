@@ -31,6 +31,7 @@ func (i *Dating) UserService(conf *config.Config) *service.UserService {
 		i.userService = &service.UserService{
 			UserRepo:     i.UserRepo(conf),
 			ReactionRepo: i.ReactionRepo(conf),
+			Redis:        i.RedisClient(conf),
 		}
 	}
 

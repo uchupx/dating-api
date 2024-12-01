@@ -1,8 +1,11 @@
 package dto
 
 import (
+	"strconv"
+	"strings"
 	"time"
 
+	"github.com/uchupx/dating-api/pkg/helper"
 	"github.com/uchupx/dating-api/src/model"
 )
 
@@ -16,7 +19,7 @@ type User struct {
 	Address     string     `json:"address"`
 	DOB         *time.Time `json:"date_of_birth"`
 	Phone       string     `json:"phone"`
-	Verified    bool       `json:"verified"`
+	Features    []string   `json:"features"`
 	ClientAppId string     `json:"-"`
 	Created     time.Time  `json:"created"`
 	Updated     *time.Time `json:"updated"`
@@ -39,6 +42,15 @@ func (u *User) Model(p *model.User) {
 
 	if p.DOB.Valid {
 		u.DOB = &p.DOB.Time
+	}
+
+	if p.Features.Valid {
+		f := strings.Split(p.Features.String, ",")
+		for _, v := range f {
+			i, _ := strconv.Atoi(v)
+
+			u.Features = append(u.Features, helper.FEATURE_MAP[int8(i)])
+		}
 	}
 }
 

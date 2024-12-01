@@ -3,8 +3,10 @@ package service
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
+	"github.com/uchupx/dating-api/pkg/database/redis"
 	"github.com/uchupx/dating-api/pkg/helper"
 	"github.com/uchupx/dating-api/src/dto"
 	"github.com/uchupx/dating-api/src/repo"
@@ -14,6 +16,8 @@ import (
 type UserService struct {
 	UserRepo     *repo.UserRepo
 	ReactionRepo *repo.ReactionRepo
+
+	Redis *redis.Redis
 }
 
 func (UserService) name() string {
@@ -47,16 +51,46 @@ func (s *UserService) FindUserByID(ctx context.Context, id string) (*dto.Respons
 }
 
 func (s *UserService) FindRandomUser(ctx context.Context) (*dto.Response, error) {
+	count := 0
 	now := time.Now()
 	start := now.AddDate(0, 0, -1)
+	userId := ctx.Value("userData").(*string)
 
-	model, err := s.UserRepo.FindUserRandom(ctx, start, now)
+	me, err := s.findByID(ctx, *userId)
+	if err != nil {
+		return nil, fmt.Errorf("%s - FindRandomUser] error when find user by id: %w", s.name(), err)
+	}
+
+	val, err := s.Redis.Get(ctx, fmt.Sprintf(helper.REDIS_KEY_USER_VIEW, *userId))
+	if err != nil {
+		return nil, fmt.Errorf("%s - FindRandomUser] error when get count random user: %w", s.name(), err)
+	}
+
+	if val != nil {
+		count, _ = strconv.Atoi(*val)
+	}
+
+	if count >= 10 && (me.Features == nil || !helper.Contains(me.Features, helper.FEATURE_NO_SWIPE_QUOTA_STRING)) {
+		return &dto.Response{
+			Status:  200,
+			Message: "You have reached the limit of random user",
+		}, nil
+	}
+
+	model, err := s.UserRepo.FindUserRandom(ctx, *userId, start, now)
 	if err != nil {
 		return nil, fmt.Errorf("%s - FindRandomUser] error when find random user: %w", s.name(), err)
 	}
 
 	var user dto.User
 	user.Model(model)
+
+	count += 1
+	duration := redis.GetEndOfDayDuration()
+
+	if err := s.Redis.Set(ctx, fmt.Sprintf(helper.REDIS_KEY_USER_VIEW, *userId), helper.IntToString(count), &duration); err != nil {
+		return nil, fmt.Errorf("%s - FindRandomUser] error when set count random user: %w", s.name(), err)
+	}
 
 	return &dto.Response{
 		Status: 200,
