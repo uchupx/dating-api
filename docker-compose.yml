@@ -29,6 +29,7 @@ services:
     user: mysql 
     volumes:
     - .data:/var/lib/mysql
+    - ./dump:/docker-entrypoint-initdb.d
     networks:
       my_network:
         ipv4_address: ${DATABASE_HOST} 
