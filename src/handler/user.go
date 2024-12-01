@@ -15,6 +15,8 @@ type UserHandler struct {
 func (h *UserHandler) InitRoutes(e *echo.Echo, m *middleware.Middleware) {
 	e.GET("/user/me", h.Me, m.Authorization)
 	e.GET("/user/random", h.GetRandom, m.Authorization)
+	e.GET("/user/:id", h.Get, m.Authorization)
+	e.PUT("/user/me", h.Update, m.Authorization)
 	e.POST("/user/reaction", h.Reaction, m.Authorization)
 }
 
@@ -30,11 +32,28 @@ func (h *UserHandler) Me(c echo.Context) error {
 }
 
 func (h *UserHandler) Update(c echo.Context) error {
-	return nil
+	var req dto.UserRequest
+	if err := c.Bind(&req); err != nil {
+		return responseError(c, &errors.ErrorMeta{HTTPCode: 400, Message: "invalid request"})
+	}
+
+	res, err := h.UserService.Update(c.Request().Context(), req)
+	if err != nil {
+		return responseError(c, err)
+	}
+
+	return c.JSON(200, res)
 }
 
 func (h *UserHandler) Get(c echo.Context) error {
-	return nil
+	userID := c.Param("id")
+
+	res, err := h.UserService.FindUserByID(c.Request().Context(), userID)
+	if err != nil {
+		return responseError(c, err)
+	}
+
+	return c.JSON(200, res)
 }
 
 func (h *UserHandler) GetRandom(c echo.Context) error {

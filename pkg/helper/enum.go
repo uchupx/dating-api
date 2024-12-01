@@ -7,8 +7,8 @@ const (
 	REDIS_KEY_USER_VIEW = "user:view:%s"
 
 	// enum reaction
-	REACTION_LIKE    int8 = 1
-	REACTION_DISLIKE int8 = 2
+	REACTION_LIKE  int8 = 1
+	REACTION_SWIPE int8 = 2
 
 	// Generate enum string
 	ACTIVE_INT   int8 = 1
@@ -30,7 +30,7 @@ var FEATURE_MAP = map[int8]string{
 func ValidateReaction(reaction int8) bool {
 	var reactions = []interface{}{
 		REACTION_LIKE,
-		REACTION_DISLIKE,
+		REACTION_SWIPE,
 	}
 
 	return Contains(reactions, reaction)

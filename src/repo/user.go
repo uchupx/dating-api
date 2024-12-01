@@ -87,6 +87,8 @@ FROM
 	  rand()
   LIMIT 1;
 `
+
+	updateUserQuery = "UPDATE users SET name= ?, gender= ?, address = ?, dob= ?, phone =? WHERRE id = ?"
 )
 
 type UserRepo struct {
@@ -223,6 +225,29 @@ func (r *UserRepo) Insert(ctx context.Context, data model.User) (*string, error)
 	}
 
 	return id, nil
+}
+
+func (r *UserRepo) Update(ctx context.Context, data model.User) error {
+	stmt, err := r.db.FPreparexContext(ctx, updateUserQuery)
+	if err != nil {
+		return fmt.Errorf("failed to prepare statement: %w", err)
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.FExecContext(ctx,
+		data.Name.String,
+		data.Gender.String,
+		data.Address.String,
+		data.DOB.Time,
+		data.Phone.String,
+	)
+
+	if err != nil {
+		return fmt.Errorf("failed to execute statement: %w", err)
+	}
+
+	return nil
 }
 
 func NewUserRepo(db *db.DB) *UserRepo {

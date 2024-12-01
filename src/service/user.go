@@ -58,7 +58,7 @@ func (s *UserService) FindRandomUser(ctx context.Context) (*dto.Response, *error
 
 	me, err := s.findByID(ctx, userId)
 	if err != nil {
-		return nil, serviceError(500, fmt.Errorf("%s - FindRandomUser] error when find user by id: %w", s.name(), err))
+		return nil, err
 	}
 
 	if me == nil {
@@ -129,4 +129,20 @@ func (s *UserService) Reaction(ctx context.Context, req dto.ReactionRequest) (*d
 		Data:    nil,
 		Message: "Success, reaction has been saved",
 	}, nil
+}
+
+func (s *UserService) Update(ctx context.Context, req dto.UserRequest) (*dto.Response, *errors.ErrorMeta) {
+	userId := ctx.Value("userData").(string)
+	user, err := s.findByID(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	user.Update(&req)
+
+	if err := s.UserRepo.Update(ctx, user.ToModel()); err != nil {
+		return nil, serviceError(500, fmt.Errorf("%s - Update] error when update user: %w", s.name(), err))
+	}
+
+	return &dto.Response{}, nil
 }
