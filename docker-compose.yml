@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+  dating-api:
+    image: dating-api:latest
+    container_name: dating-api 
+    build: .
+    ports:
+      - "5000:80"
+    networks:
+      - my_network
+    volumes:
+      - ${ENV_VOL}:/env
+      - ${LOG_VOL}:/log
+    depends_on:
+      - database
+
+  database:
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DATABASE_NAME}
+      - MYSQL_USER=${DATABASE_USERNAME}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    networks:
+      my_network:
+        ipv4_address: ${DATABASE_HOST} 
+
+  redis:
+    image: redis:latest
+    container_name: redis-dating-api 
+    networks:
+      my_network:
+        ipv4_address: ${REDIS_HOST} 
+
+
+networks:
+  my_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.99.0/24
+

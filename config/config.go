@@ -10,6 +10,7 @@ import (
 var configPath = []string{
 	"./",
 	"./config/",
+	"./env/",
 }
 
 type Config struct {
