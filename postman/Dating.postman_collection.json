@@ -1,0 +1,695 @@
+{
+	"info": {
+		"_postman_id": "36864384-2022-4f04-bfa4-51aaf6669e67",
+		"name": "Dating",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6795322",
+		"_collection_link": "https://winter-resonance-6097.postman.co/workspace/Kajian~07d5d199-6ffa-40bb-8d7e-7e78363e83d6/collection/6795322-36864384-2022-4f04-bfa4-51aaf6669e67?action=share&source=collection_link&creator=6795322"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"})",
+									"",
+									"const responseJson = pm.response.json();",
+									"pm.environment.set(\"access_token\", responseJson.data.access_token)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"uchupx2\",\n    \"password\": \"chapzz33\",\n    \"grant_type\": \"token\",\n    \"client_id\": \"{{client_app_key}}\",\n    \"client_secret\": \"{{client_app_secret}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{http}}/token",
+							"host": [
+								"{{http}}"
+							],
+							"path": [
+								"token"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"uchupx2\",\n    \"password\": \"chapzz33\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/token",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"token"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 06 Sep 2023 14:28:40 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "687"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"message\": \"\",\n    \"meta\": null,\n    \"data\": {\n        \"token\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXQiOnsiaWQiOjIsInVzZXJuYW1lIjoidWNodXB4MiIsImVtYWlsIjoieXVzdWZ4eDMzQGdtYWlsLmNvbSIsImNyZWF0ZWQiOiIyMDIzLTA5LTA2VDE0OjI2OjA1WiIsInVwZGF0ZWQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9LCJleHAiOjE2OTQwMTQxMjB9.cM6tHc75IWGFh1oT8QuiIR6yX7oZS79ermRZLK5s7yJmO4rlaTxnTyrgGGBz4DMMBR8pp86DISdrX-7qV6nFscLkAzvlGu2AvUpGJch_S-wy5D8V41yKp39w6ysg5YEkhZhknOkmaOafap96KiTYu2dYOisAHtwcA9dw4tI3rsX3wfJZTIqReSuj9klE9-2ZS5QEWQNNRN9vsdedW3BB6hVT-RvZohS4FgyfZ8GMa3UEpIucCvSTzX0qkVrFRM0uMpIHZl8WEcLIsMuDOtu5pi0BV-NqXmgkv4_vvHiW7hO7SKTxhArZW-Kaq6c6o29iOHHr3ATzmmytkHlsgF9ayQ\",\n        \"expired\": 3600\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"grant_type\": \"refresh\",\n    \"client_id\": \"pbMVQnNVqyDdm7ODL58t\",\n    \"client_secret\": \"aFA62RRZPwy916T6eY4o\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{http}}/token",
+							"host": [
+								"{{http}}"
+							],
+							"path": [
+								"token"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"uchupx2\",\n    \"password\": \"chapzz33\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/token",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"token"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 06 Sep 2023 14:28:40 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "687"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"message\": \"\",\n    \"meta\": null,\n    \"data\": {\n        \"token\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXQiOnsiaWQiOjIsInVzZXJuYW1lIjoidWNodXB4MiIsImVtYWlsIjoieXVzdWZ4eDMzQGdtYWlsLmNvbSIsImNyZWF0ZWQiOiIyMDIzLTA5LTA2VDE0OjI2OjA1WiIsInVwZGF0ZWQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9LCJleHAiOjE2OTQwMTQxMjB9.cM6tHc75IWGFh1oT8QuiIR6yX7oZS79ermRZLK5s7yJmO4rlaTxnTyrgGGBz4DMMBR8pp86DISdrX-7qV6nFscLkAzvlGu2AvUpGJch_S-wy5D8V41yKp39w6ysg5YEkhZhknOkmaOafap96KiTYu2dYOisAHtwcA9dw4tI3rsX3wfJZTIqReSuj9klE9-2ZS5QEWQNNRN9vsdedW3BB6hVT-RvZohS4FgyfZ8GMa3UEpIucCvSTzX0qkVrFRM0uMpIHZl8WEcLIsMuDOtu5pi0BV-NqXmgkv4_vvHiW7hO7SKTxhArZW-Kaq6c6o29iOHHr3ATzmmytkHlsgF9ayQ\",\n        \"expired\": 3600\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Client",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"internal\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{http}}/client",
+							"host": [
+								"{{http}}"
+							],
+							"path": [
+								"client"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"uchupx2\",\n    \"password\": \"chapzz33\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/token",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"token"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 06 Sep 2023 14:28:40 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "687"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"message\": \"\",\n    \"meta\": null,\n    \"data\": {\n        \"token\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXQiOnsiaWQiOjIsInVzZXJuYW1lIjoidWNodXB4MiIsImVtYWlsIjoieXVzdWZ4eDMzQGdtYWlsLmNvbSIsImNyZWF0ZWQiOiIyMDIzLTA5LTA2VDE0OjI2OjA1WiIsInVwZGF0ZWQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9LCJleHAiOjE2OTQwMTQxMjB9.cM6tHc75IWGFh1oT8QuiIR6yX7oZS79ermRZLK5s7yJmO4rlaTxnTyrgGGBz4DMMBR8pp86DISdrX-7qV6nFscLkAzvlGu2AvUpGJch_S-wy5D8V41yKp39w6ysg5YEkhZhknOkmaOafap96KiTYu2dYOisAHtwcA9dw4tI3rsX3wfJZTIqReSuj9klE9-2ZS5QEWQNNRN9vsdedW3BB6hVT-RvZohS4FgyfZ8GMa3UEpIucCvSTzX0qkVrFRM0uMpIHZl8WEcLIsMuDOtu5pi0BV-NqXmgkv4_vvHiW7hO7SKTxhArZW-Kaq6c6o29iOHHr3ATzmmytkHlsgF9ayQ\",\n        \"expired\": 3600\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Sign Up",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":\"uchupx2\",\n    \"password\": \"chapzz33\",\n    \"email\":\"yusufxx33@gmail.com\",\n    \"client_key\": \"{{client_app_key}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{http}}/sign-up",
+							"host": [
+								"{{http}}"
+							],
+							"path": [
+								"sign-up"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Sign Up Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\":\"uchupx2\",\n    \"password\": \"chapzz33\",\n    \"email\":\"yusufxx33@gmail.com\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/sign-up",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"sign-up"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 06 Sep 2023 14:26:09 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "105"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 201,\n    \"message\": \"\",\n    \"meta\": null,\n    \"data\": {\n        \"id\": 2,\n        \"entity\": \"users\"\n    }\n}"
+						}
+					]
+				}
+			],
+			"description": "Authorization using bearer token"
+		},
+		{
+			"name": "Package",
+			"item": [
+				{
+					"name": "Package",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{http}}/packages",
+							"host": [
+								"{{http}}"
+							],
+							"path": [
+								"packages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Purchase Package",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", function () {",
+									"    if (pm.response.code == 500) {",
+									"",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.eql(\"error: [PackageService - Purchase] failed to purchase package, error: package already purchased\");",
+									"        } else {",
+									"pm.response.to.have.status(200);",
+									"    }",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{http}}/package/01937e16-5541-70bg-86eb-9d1851e421de/purchase",
+							"host": [
+								"{{http}}"
+							],
+							"path": [
+								"package",
+								"01937e16-5541-70bg-86eb-9d1851e421de",
+								"purchase"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Me",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{http}}/user/me",
+							"host": [
+								"{{http}}"
+							],
+							"path": [
+								"user",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Random User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{http}}/user/random",
+							"host": [
+								"{{http}}"
+							],
+							"path": [
+								"user",
+								"random"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update - ND",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"        var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.eql(\"Success, user has been updated\");",
+									"    ",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Name\": \"Bambang\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{http}}/user/me",
+							"host": [
+								"{{http}}"
+							],
+							"path": [
+								"user",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "React",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"target_user_id\": \"060822fd-167b-4ff9-926b-bf22c4607f94\",\n    \"reaction\": 2 // 1 (Like) or 2 (Swipe)\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{http}}/user/reaction",
+							"host": [
+								"{{http}}"
+							],
+							"path": [
+								"user",
+								"reaction"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ping",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{http}}/ping",
+					"host": [
+						"{{http}}"
+					],
+					"path": [
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check Auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{http}}/status",
+					"host": [
+						"{{http}}"
+					],
+					"path": [
+						"status"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
